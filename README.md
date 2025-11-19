@@ -1,6 +1,6 @@
 # Claude Code System Prompts
 
-This repository contains an up-to-date list of all Claude Code's various system prompts and their associated token counts as of **[Claude Code v2.0.35](https://www.npmjs.com/package/@anthropic-ai/claude-code/v/2.0.35) (November 6th, 2025).**
+This repository contains an up-to-date list of all Claude Code's various system prompts and their associated token counts as of **[Claude Code v2.0.36](https://www.npmjs.com/package/@anthropic-ai/claude-code/v/2.0.36) (November 7th, 2025).**
 
 Why multiple "system prompts?"
 
@@ -73,10 +73,10 @@ Misc large strings.
 
 Parts of the main system prompt.
 
-- [**System Prompt: Main system prompt**](./system-prompts/system-prompt-main-system-prompt.md) (**2468** tks) - Core system prompt for Claude Code defining behavior, tone, and tool usage policies.
+- [**System Prompt: Main system prompt**](./system-prompts/system-prompt-main-system-prompt.md) (**2465** tks) - Core system prompt for Claude Code defining behavior, tone, and tool usage policies.
 - [System Prompt: Learning mode (insights)](./system-prompts/system-prompt-learning-mode-insights.md) (**142** tks) - Instructions for providing educational insights when learning mode is active.
 - [System Prompt: Learning mode](./system-prompts/system-prompt-learning-mode.md) (**1042** tks) - System Prompt: Main system prompt for learning mode with human collaboration instructions.
-- [System Prompt: MCP CLI](./system-prompts/system-prompt-mcp-cli.md) (**1338** tks) - Instructions for using mcp-cli to interact with Model Context Protocol servers.
+- [System Prompt: MCP CLI](./system-prompts/system-prompt-mcp-cli.md) (**1357** tks) - Instructions for using mcp-cli to interact with Model Context Protocol servers.
 
 ### System Reminders
 
@@ -97,8 +97,8 @@ Text for large system reminders.
 - [Tool Description: LSP](./system-prompts/tool-description-lsp.md) (**172** tks) - Description for the LSP tool..
 - [Tool Description: NotebookEdit](./system-prompts/tool-description-notebookedit.md) (**121** tks) - Tool description for editing Jupyter notebook cells.
 - [Tool Description: ReadFile](./system-prompts/tool-description-readfile.md) (**439** tks) - Tool description for reading files.
-- [Tool Description: Skill](./system-prompts/tool-description-skill.md) (**270** tks) - Tool description for executing skills in the main conversation.
-- [Tool Description: SlashCommand](./system-prompts/tool-description-slashcommand.md) (**381** tks) - Tool description for executing slash commands.
+- [Tool Description: Skill](./system-prompts/tool-description-skill.md) (**279** tks) - Tool description for executing skills in the main conversation.
+- [Tool Description: SlashCommand](./system-prompts/tool-description-slashcommand.md) (**355** tks) - Tool description for executing slash commands.
 - [Tool Description: Task](./system-prompts/tool-description-task.md) (**1055** tks) - Tool description for launching specialized sub-agents to handle complex tasks.
 - [Tool Description: TodoWrite](./system-prompts/tool-description-todowrite.md) (**2167** tks) - Tool description for creating and managing task lists.
 - [Tool Description: WebFetch](./system-prompts/tool-description-webfetch.md) (**278** tks) - Tool description for web fetch functionality.

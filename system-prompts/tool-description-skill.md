@@ -1,10 +1,11 @@
 <!--
 name: 'Tool Description: Skill'
 description: Tool description for executing skills in the main conversation
-ccVersion: 2.0.20
+ccVersion: 2.0.36
 variables:
-  - AVAILBLE_SKILLS_1
-  - AVAILBLE_SKILLS_2
+  - FORMAT_SKILLS_AS_XML_FN
+  - LIMITED_COMMANDS
+  - AVAILABLE_SKILLs
 -->
 Execute a skill within the main conversation
 
@@ -16,9 +17,9 @@ How to use skills:
 - When you invoke a skill, you will see <command-message>The "{name}" skill is loading</command-message>
 - The skill's prompt will expand and provide detailed instructions on how to complete the task
 - Examples:
-  - \`command: "pdf"\` - invoke the pdf skill
-  - \`command: "xlsx"\` - invoke the xlsx skill
-  - \`command: "ms-office-suite:pdf"\` - invoke using fully qualified name
+  - \`skill: "pdf"\` - invoke the pdf skill
+  - \`skill: "xlsx"\` - invoke the xlsx skill
+  - \`skill: "ms-office-suite:pdf"\` - invoke using fully qualified name
 
 Important:
 - Only use skills listed in <available_skills> below
@@ -27,5 +28,5 @@ Important:
 </skills_instructions>
 
 <available_skills>
-${AVAILBLE_SKILLS_1}${AVAILBLE_SKILLS_2}
+${FORMAT_SKILLS_AS_XML_FN(LIMITED_COMMANDS,AVAILABLE_SKILLs.length)}
 </available_skills>
