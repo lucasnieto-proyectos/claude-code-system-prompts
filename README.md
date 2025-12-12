@@ -26,7 +26,7 @@ Download it and try it out for free!  **https://piebald.ai/**
 
 # Claude Code System Prompts
 
-This repository contains an up-to-date list of all Claude Code's various system prompts and their associated token counts as of **[Claude Code v2.0.61](https://www.npmjs.com/package/@anthropic-ai/claude-code/v/2.0.61) (December 7th, 2025).**  It also contains a [**CHANGELOG.md**](./CHANGELOG.md) for the system prompts across 42 versions since v2.0.14.  From the team behind [<img src="https://github.com/Piebald-AI/piebald/raw/main/assets/logo.svg" width="15"> **Piebald.**](https://piebald.ai/)
+This repository contains an up-to-date list of all Claude Code's various system prompts and their associated token counts as of **[Claude Code v2.0.62](https://www.npmjs.com/package/@anthropic-ai/claude-code/v/2.0.62) (December 8th, 2025).**  It also contains a [**CHANGELOG.md**](./CHANGELOG.md) for the system prompts across 43 versions since v2.0.14.  From the team behind [<img src="https://github.com/Piebald-AI/piebald/raw/main/assets/logo.svg" width="15"> **Piebald.**](https://piebald.ai/)
 
 Why multiple "system prompts?"
 
@@ -105,7 +105,7 @@ Misc large strings.
 
 Parts of the main system prompt.
 
-- [**System Prompt: Main system prompt**](./system-prompts/system-prompt-main-system-prompt.md) (**2972** tks) - Core system prompt for Claude Code defining behavior, tone, and tool usage policies.
+- [**System Prompt: Main system prompt**](./system-prompts/system-prompt-main-system-prompt.md) (**3033** tks) - Core system prompt for Claude Code defining behavior, tone, and tool usage policies.
 - [System Prompt: Learning mode (insights)](./system-prompts/system-prompt-learning-mode-insights.md) (**142** tks) - Instructions for providing educational insights when learning mode is active.
 - [System Prompt: Learning mode](./system-prompts/system-prompt-learning-mode.md) (**1042** tks) - System Prompt: Main system prompt for learning mode with human collaboration instructions.
 - [System Prompt: MCP CLI](./system-prompts/system-prompt-mcp-cli.md) (**1335** tks) - Instructions for using mcp-cli to interact with Model Context Protocol servers.
@@ -125,9 +125,10 @@ Text for large system reminders.
 
 ### Builtin Tool Descriptions
 
+- [Tool Description: AskUserQuestion](./system-prompts/tool-description-askuserquestion.md) (**137** tks) - Tool description for asking user questions..
 - [Tool Description: Bash](./system-prompts/tool-description-bash.md) (**1074** tks) - Description for the Bash tool, which allows Claude to run shell commands.
 - [Tool Description: Edit](./system-prompts/tool-description-edit.md) (**278** tks) - Tool description for performing exact string replacements in files.
-- [Tool Description: EnterPlanMode](./system-prompts/tool-description-enterplanmode.md) (**773** tks) - Description for the EnterPlanMode tool, which lets Claude enter plan mode proactively..
+- [Tool Description: EnterPlanMode](./system-prompts/tool-description-enterplanmode.md) (**970** tks) - Tool description for entering plan mode to explore and design implementation approaches.
 - [Tool Description: ExitPlanMode v2](./system-prompts/tool-description-exitplanmode-v2.md) (**450** tks) - V2 description for the ExitPlanMode tool, which presents a plan dialog for the user to approve.
 - [Tool Description: ExitPlanMode](./system-prompts/tool-description-exitplanmode.md) (**342** tks) - Description for the ExitPlanMode tool, which presents a plan dialog for the user to approve.
 - [Tool Description: Glob](./system-prompts/tool-description-glob.md) (**122** tks) - Tool description for file pattern matching and searching by name.
@@ -135,12 +136,12 @@ Text for large system reminders.
 - [Tool Description: LSP](./system-prompts/tool-description-lsp.md) (**172** tks) - Description for the LSP tool..
 - [Tool Description: NotebookEdit](./system-prompts/tool-description-notebookedit.md) (**121** tks) - Tool description for editing Jupyter notebook cells.
 - [Tool Description: ReadFile](./system-prompts/tool-description-readfile.md) (**439** tks) - Tool description for reading files.
-- [Tool Description: Skill](./system-prompts/tool-description-skill.md) (**279** tks) - Tool description for executing skills in the main conversation.
+- [Tool Description: Skill](./system-prompts/tool-description-skill.md) (**292** tks) - Tool description for executing skills in the main conversation.
 - [Tool Description: SlashCommand](./system-prompts/tool-description-slashcommand.md) (**355** tks) - Tool description for executing slash commands.
 - [Tool Description: TaskUpdate](./system-prompts/tool-description-taskupdate.md) (**555** tks) - Description for the TaskUpdate tool, which updates Claude's task list.
-- [Tool Description: Task](./system-prompts/tool-description-task.md) (**1146** tks) - Tool description for launching specialized sub-agents to handle complex tasks.
+- [Tool Description: Task](./system-prompts/tool-description-task.md) (**1193** tks) - Tool description for launching specialized sub-agents to handle complex tasks.
 - [Tool Description: TodoWrite](./system-prompts/tool-description-todowrite.md) (**2167** tks) - Tool description for creating and managing task lists.
-- [Tool Description: WebFetch](./system-prompts/tool-description-webfetch.md) (**278** tks) - Tool description for web fetch functionality.
+- [Tool Description: WebFetch](./system-prompts/tool-description-webfetch.md) (**265** tks) - Tool description for web fetch functionality.
 - [Tool Description: WebSearch](./system-prompts/tool-description-websearch.md) (**334** tks) - Tool description for web search functionality.
 - [Tool Description: Write](./system-prompts/tool-description-write.md) (**159** tks) - Tool description creating/overwriting writing individual files.
 

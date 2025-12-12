@@ -1,7 +1,7 @@
 <!--
 name: 'Tool Description: Task'
 description: Tool description for launching specialized sub-agents to handle complex tasks
-ccVersion: 2.0.60
+ccVersion: 2.0.62
 variables:
   - TASK_TOOL
   - AGENT_TYPE_REGISTRY_STRING
@@ -31,7 +31,9 @@ Usage notes:
 - Launch multiple agents concurrently whenever possible, to maximize performance; to do that, use a single message with multiple tool uses
 - When the agent is done, it will return a single message back to you. The result returned by the agent is not visible to the user. To show the user the result, you should send a text message back to the user with a concise summary of the result.
 - You can optionally run agents in the background using the run_in_background parameter. When an agent runs in the background, you will need to use ${TASK_TOOL} to retrieve its results once it's done. You can continue to work while background agents run - When you need their results to continue you can use ${TASK_TOOL} in blocking mode to pause and wait for their results.
-- Each agent invocation is stateless. You will not be able to send additional messages to the agent, nor will the agent be able to communicate with you outside of its final report. Therefore, your prompt should contain a highly detailed task description for the agent to perform autonomously and you should specify exactly what information the agent should return back to you in its final and only message to you.
+- Agents can be resumed using the \`resume\` parameter by passing the agent ID from a previous invocation. When resumed, the agent continues with its full previous context preserved. When NOT resuming, each invocation starts fresh and you should provide a detailed task description with all necessary context.
+- When the agent is done, it will return a single message back to you along with its agent ID. You can use this ID to resume the agent later if needed for follow-up work.
+- Provide clear, detailed prompts so the agent can work autonomously and return exactly the information you need.
 - Agents with "access to current context" can see the full conversation history before the tool call. When using these agents, you can write concise prompts that reference earlier context (e.g., "investigate the error discussed above") instead of repeating information. The agent will receive all prior messages and understand the context.
 - The agent's outputs should generally be trusted
 - Clearly tell the agent whether you expect it to write code or just to do research (search, file reads, web fetches, etc.), since it is not aware of the user's intent
