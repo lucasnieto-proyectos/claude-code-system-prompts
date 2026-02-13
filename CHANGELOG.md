@@ -4,6 +4,16 @@ Note: Only use **NEW:** for entirely new prompt files, NOT for new additions/sec
 
 ### Claude Code System Prompts Changelog
 
+#### [2.1.41](https://github.com/Piebald-AI/claude-code-system-prompts/commit/91732e4)
+
+_+262 tokens_
+
+- **NEW:** System Prompt: Conditional delegate codebase exploration - Added instructions for when to use the Explore subagent versus calling tools directly (249 tks).
+- System Prompt: Tool usage policy - Replaced inline "VERY IMPORTANT" block and examples about delegating codebase exploration to the Explore agent with a conditional variable reference; removed `GLOB_TOOL_NAME` and `GREP_TOOL_NAME` variables (564 → 352 tks).
+- System Prompt: Skillify Current Session - Added Round 2 prompt to ask the user where to save the skill (repo-specific vs personal); updated Step 3 to use the user-chosen location instead of hardcoded `.claude/skills/`; changed Step 4 to output the SKILL.md as a YAML code block for review and use a simpler AskUserQuestion confirmation (1750 → 1882 tks).
+- System Reminder: Plan mode is active (5-phase) - Made Explore subagent usage conditional; when disabled, Phase 1 now instructs Claude to use Glob, Grep, and Read tools directly; updated Phase 2 variable references for plan subagent and agent count (1429 → 1500 tks).
+- Agent Prompt: Status line setup - Added `session_name` field (optional human-readable session name set via `/rename`) to the JSON input spec (1460 → 1482 tks).
+
 #### [2.1.40](https://github.com/Piebald-AI/claude-code-system-prompts/commit/06ce2b9)
 
 _-293 tokens_
