@@ -1,11 +1,11 @@
 <!--
 name: 'Data: Claude API reference — C#'
 description: C# SDK reference including installation, client initialization, basic requests, streaming, and tool use
-ccVersion: 2.1.47
+ccVersion: 2.1.51
 -->
 # Claude API — C#
 
-> **Note:** The C# SDK is the official Anthropic SDK for C# (currently in beta). Tool runner and Agent SDK are not available.
+> **Note:** The C# SDK is the official Anthropic SDK for C#. Tool use is supported via the Messages API. A class-annotation-based tool runner is not available; use raw tool definitions with JSON schema. The SDK also supports Microsoft.Extensions.AI IChatClient integration with function invocation.
 
 ## Installation
 
@@ -49,6 +49,8 @@ Console.WriteLine(message);
 ## Streaming
 
 \`\`\`csharp
+using Anthropic.Models.Messages;
+
 var parameters = new MessageCreateParams
 {
     Model = Model.ClaudeOpus4_6,
@@ -56,9 +58,13 @@ var parameters = new MessageCreateParams
     Messages = [new() { Role = Role.User, Content = "Write a haiku" }]
 };
 
-await foreach (var msg in client.Messages.CreateStreaming(parameters))
+await foreach (RawMessageStreamEvent streamEvent in client.Messages.CreateStreaming(parameters))
 {
-    Console.Write(msg);
+    if (streamEvent.TryPickContentBlockDelta(out var delta) &&
+        delta.Delta.TryPickText(out var text))
+    {
+        Console.Write(text.Text);
+    }
 }
 \`\`\`
 

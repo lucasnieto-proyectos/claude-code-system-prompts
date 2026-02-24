@@ -1,7 +1,7 @@
 <!--
 name: 'Data: Claude API reference — Ruby'
 description: Ruby SDK reference including installation, client initialization, basic requests, streaming, and beta tool runner
-ccVersion: 2.1.47
+ccVersion: 2.1.51
 -->
 # Claude API — Ruby
 
@@ -63,14 +63,17 @@ The Ruby SDK supports tool use via raw JSON schema definitions and also provides
 ### Tool Runner (Beta)
 
 \`\`\`ruby
-class GetWeather < Anthropic::BaseTool
-  input_schema do
-    property :location, type: "string", description: "City and state, e.g. San Francisco, CA", required: true
-  end
+class GetWeatherInput < Anthropic::BaseModel
+  required :location, String, doc: "City and state, e.g. San Francisco, CA"
+end
 
-  def call(location:)
-    # Your tool implementation
-    "The weather in #{location} is sunny and 72°F."
+class GetWeather < Anthropic::BaseTool
+  doc "Get the current weather for a location"
+
+  input_schema GetWeatherInput
+
+  def call(input)
+    "The weather in #{input.location} is sunny and 72°F."
   end
 end
 
@@ -79,7 +82,9 @@ client.beta.messages.tool_runner(
   max_tokens: 1024,
   tools: [GetWeather.new],
   messages: [{ role: "user", content: "What's the weather in San Francisco?" }]
-).each_message { |msg| puts msg.content }
+).each_message do |message|
+  puts message.content
+end
 \`\`\`
 
 ### Manual Loop

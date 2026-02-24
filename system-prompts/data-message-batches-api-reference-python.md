@@ -1,7 +1,7 @@
 <!--
 name: 'Data: Message Batches API reference — Python'
 description: Python Batches API reference including batch creation, status polling, and result retrieval at 50% cost
-ccVersion: 2.1.47
+ccVersion: 2.1.51
 -->
 # Message Batches API — Python
 
@@ -86,6 +86,8 @@ for result in client.messages.batches.results(message_batch.id):
                 print(f"[{result.custom_id}] Validation error - fix request and retry")
             else:
                 print(f"[{result.custom_id}] Server error - safe to retry")
+        case "canceled":
+            print(f"[{result.custom_id}] Canceled")
         case "expired":
             print(f"[{result.custom_id}] Expired - resubmit")
 \`\`\`

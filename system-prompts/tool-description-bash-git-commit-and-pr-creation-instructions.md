@@ -5,10 +5,10 @@ ccVersion: 2.1.38
 variables:
   - GIT_COMMAND_PARALLEL_NOTE
   - BASH_TOOL_NAME
-  - COMMIT_CO_AUTHORED_BY_CLAUDE_CODE
+  - ATTRIBUTION_TEXT
   - TODO_TOOL_OBJECT
   - TASK_TOOL_NAME
-  - PR_GENERATED_WITH_CLAUDE_CODE
+  - PR_ATTRIBUTION_TEXT
 -->
 # Committing changes with git
 
@@ -34,8 +34,8 @@ Git Safety Protocol:
   - Ensure it accurately reflects the changes and their purpose
 3. ${GIT_COMMAND_PARALLEL_NOTE} run the following commands:
    - Add relevant untracked files to the staging area.
-   - Create the commit with a message${COMMIT_CO_AUTHORED_BY_CLAUDE_CODE?` ending with:
-   ${COMMIT_CO_AUTHORED_BY_CLAUDE_CODE}`:"."}
+   - Create the commit with a message${ATTRIBUTION_TEXT?` ending with:
+   ${ATTRIBUTION_TEXT}`:"."}
    - Run git status after the commit completes to verify success.
    Note: git status depends on the commit completing, so run it sequentially after the commit.
 4. If the commit fails due to pre-commit hook: fix the issue and create a NEW commit
@@ -50,9 +50,9 @@ Important notes:
 - In order to ensure good formatting, ALWAYS pass the commit message via a HEREDOC, a la this example:
 <example>
 git commit -m "$(cat <<'EOF'
-   Commit message here.${COMMIT_CO_AUTHORED_BY_CLAUDE_CODE?`
+   Commit message here.${ATTRIBUTION_TEXT?`
 
-   ${COMMIT_CO_AUTHORED_BY_CLAUDE_CODE}`:""}
+   ${ATTRIBUTION_TEXT}`:""}
    EOF
    )"
 </example>
@@ -80,9 +80,9 @@ gh pr create --title "the pr title" --body "$(cat <<'EOF'
 <1-3 bullet points>
 
 ## Test plan
-[Bulleted markdown checklist of TODOs for testing the pull request...]${PR_GENERATED_WITH_CLAUDE_CODE?`
+[Bulleted markdown checklist of TODOs for testing the pull request...]${PR_ATTRIBUTION_TEXT?`
 
-${PR_GENERATED_WITH_CLAUDE_CODE}`:""}
+${PR_ATTRIBUTION_TEXT}`:""}
 EOF
 )"
 </example>

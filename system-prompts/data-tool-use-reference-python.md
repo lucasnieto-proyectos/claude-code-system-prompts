@@ -1,7 +1,7 @@
 <!--
 name: 'Data: Tool use reference — Python'
 description: Python tool use reference including tool runner, manual agentic loop, code execution, and structured outputs
-ccVersion: 2.1.47
+ccVersion: 2.1.51
 -->
 # Tool Use — Python
 
@@ -208,16 +208,15 @@ import anthropic
 
 client = anthropic.Anthropic()
 
-response = client.beta.messages.create(
+response = client.messages.create(
     model="claude-opus-4-6",
-    betas=["code-execution-2025-08-25"],
     max_tokens=4096,
     messages=[{
         "role": "user",
         "content": "Calculate the mean and standard deviation of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]"
     }],
     tools=[{
-        "type": "code_execution_20250825",
+        "type": "code_execution_20260120",
         "name": "code_execution"
     }]
 )
@@ -236,10 +235,11 @@ for block in response.content:
 uploaded = client.beta.files.upload(file=open("sales_data.csv", "rb"))
 
 # 2. Pass to code execution via container_upload block
-response = client.beta.messages.create(
+# Code execution is GA; Files API is still beta (pass via extra_headers)
+response = client.messages.create(
     model="claude-opus-4-6",
-    betas=["code-execution-2025-08-25", "files-api-2025-04-14"],
     max_tokens=4096,
+    extra_headers={"anthropic-beta": "files-api-2025-04-14"},
     messages=[{
         "role": "user",
         "content": [
@@ -247,7 +247,7 @@ response = client.beta.messages.create(
             {"type": "container_upload", "file_id": uploaded.id}
         ]
     }],
-    tools=[{"type": "code_execution_20250825", "name": "code_execution"}]
+    tools=[{"type": "code_execution_20260120", "name": "code_execution"}]
 )
 \`\`\`
 
@@ -281,25 +281,23 @@ for block in response.content:
 
 \`\`\`python
 # First request: set up environment
-response1 = client.beta.messages.create(
+response1 = client.messages.create(
     model="claude-opus-4-6",
-    betas=["code-execution-2025-08-25"],
     max_tokens=4096,
     messages=[{"role": "user", "content": "Install tabulate and create data.json with sample data"}],
-    tools=[{"type": "code_execution_20250825", "name": "code_execution"}]
+    tools=[{"type": "code_execution_20260120", "name": "code_execution"}]
 )
 
 # Get container ID from response
 container_id = response1.container.id
 
 # Second request: reuse the same container
-response2 = client.beta.messages.create(
+response2 = client.messages.create(
     container=container_id,
     model="claude-opus-4-6",
-    betas=["code-execution-2025-08-25"],
     max_tokens=4096,
     messages=[{"role": "user", "content": "Read data.json and display as a formatted table"}],
-    tools=[{"type": "code_execution_20250825", "name": "code_execution"}]
+    tools=[{"type": "code_execution_20260120", "name": "code_execution"}]
 )
 \`\`\`
 
@@ -335,12 +333,11 @@ import anthropic
 
 client = anthropic.Anthropic()
 
-response = client.beta.messages.create(
+response = client.messages.create(
     model="claude-opus-4-6",
     max_tokens=2048,
     messages=[{"role": "user", "content": "Remember that my preferred language is Python."}],
     tools=[{"type": "memory_20250818", "name": "memory"}],
-    betas=["context-management-2025-06-27"],
 )
 \`\`\`
 
@@ -367,7 +364,6 @@ runner = client.beta.messages.tool_runner(
     max_tokens=2048,
     tools=[memory],
     messages=[{"role": "user", "content": "Remember my preferences"}],
-    betas=["context-management-2025-06-27"],
 )
 
 for message in runner:

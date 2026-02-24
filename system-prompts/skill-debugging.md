@@ -5,7 +5,7 @@ ccVersion: 2.1.30
 variables:
   - DEBUG_LOG_PATH
   - DEBUG_LOG_SUMMARY
-  - ISSUE_DESCRIPTION
+  - USER_ISSUE_DESCRIPTION
   - SETTINGS_FILE_PATH
   - LOG_LINE_COUNT
   - CLAUDE_CODE_GUIDE_SUBAGENT_NAME
@@ -24,7 +24,7 @@ For additional context, grep for [ERROR] and [WARN] lines across the full file.
 
 ## Issue Description
 
-${ISSUE_DESCRIPTION||"The user did not describe a specific issue. Read the debug log and summarize any errors, warnings, or notable issues."}
+${USER_ISSUE_DESCRIPTION||"The user did not describe a specific issue. Read the debug log and summarize any errors, warnings, or notable issues."}
 
 ## Settings
 

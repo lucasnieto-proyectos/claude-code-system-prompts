@@ -1,7 +1,7 @@
 <!--
 name: 'Data: Claude API reference — Java'
 description: Java SDK reference including installation, client initialization, basic requests, streaming, and beta tool use
-ccVersion: 2.1.47
+ccVersion: 2.1.51
 -->
 # Claude API — Java
 
@@ -15,14 +15,14 @@ Maven:
 <dependency>
     <groupId>com.anthropic</groupId>
     <artifactId>anthropic-java</artifactId>
-    <version>2.11.1</version>
+    <version>2.14.0</version>
 </dependency>
 \`\`\`
 
 Gradle:
 
 \`\`\`groovy
-implementation("com.anthropic:anthropic-java:2.11.1")
+implementation("com.anthropic:anthropic-java:2.14.0")
 \`\`\`
 
 ## Client Initialization
@@ -66,20 +66,20 @@ response.content().stream()
 ## Streaming
 
 \`\`\`java
+import com.anthropic.core.http.StreamResponse;
+import com.anthropic.models.messages.RawMessageStreamEvent;
+
 MessageCreateParams params = MessageCreateParams.builder()
     .model(Model.CLAUDE_OPUS_4_6)
     .maxTokens(1024L)
     .addUserMessage("Write a haiku")
     .build();
 
-try (var streamResponse = client.messages().createStreaming(params)) {
-    streamResponse.stream().forEach(event -> {
-        event.contentBlockDelta().ifPresent(deltaEvent ->
-            deltaEvent.delta().text().ifPresent(td ->
-                System.out.print(td.text())
-            )
-        );
-    });
+try (StreamResponse<RawMessageStreamEvent> streamResponse = client.messages().createStreaming(params)) {
+    streamResponse.stream()
+        .flatMap(event -> event.contentBlockDelta().stream())
+        .flatMap(deltaEvent -> deltaEvent.delta().text().stream())
+        .forEach(textDelta -> System.out.print(textDelta.text()));
 }
 \`\`\`
 
@@ -114,6 +114,7 @@ BetaToolRunner toolRunner = client.beta().messages().toolRunner(
     MessageCreateParams.builder()
         .model("claude-opus-4-6")
         .maxTokens(1024L)
+        .putAdditionalHeader("anthropic-beta", "structured-outputs-2025-11-13")
         .addTool(GetWeather.class)
         .addUserMessage("What's the weather in San Francisco?")
         .build());
@@ -122,6 +123,10 @@ for (BetaMessage message : toolRunner) {
     System.out.println(message);
 }
 \`\`\`
+
+### Non-Beta Tool Use
+
+Tool use is also available through the non-beta \`com.anthropic.models.messages.MessageCreateParams\` with \`addTool(Tool)\` for manually defined JSON schemas, without needing the beta namespace. The beta namespace is only needed for the class-annotation convenience layer (\`@JsonClassDescription\`, \`BetaToolRunner\`).
 
 ### Manual Loop
 

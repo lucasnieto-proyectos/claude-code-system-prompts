@@ -1,15 +1,19 @@
 <!--
 name: 'Tool Description: EnterWorktree'
 description: Tool description for the EnterWorktree tool.
-ccVersion: 2.1.50
+ccVersion: 2.1.51
 -->
-Use this tool when the user asks to work in isolation, in a worktree, or on a separate branch without affecting the main working tree. This tool creates an isolated worktree and switches the current session into it.
+Use this tool ONLY when the user explicitly asks to work in a worktree. This tool creates an isolated git worktree and switches the current session into it.
 
 ## When to Use
 
-- The user says "start a worktree", "work in a worktree", "create a worktree"
-- The user wants to work on a feature in isolation
-- The user wants to make changes on a separate branch without affecting the current one
+- The user explicitly says "worktree" (e.g., "start a worktree", "work in a worktree", "create a worktree", "use a worktree")
+
+## When NOT to Use
+
+- The user asks to create a branch, switch branches, or work on a different branch — use git commands instead
+- The user asks to fix a bug or work on a feature — use normal git workflow unless they specifically mention worktrees
+- Never use this tool unless the user explicitly mentions "worktree"
 
 ## Requirements
 

@@ -1,7 +1,7 @@
 <!--
 name: 'Data: Tool use concepts'
 description: Conceptual foundations of tool use with the Claude API including tool definitions, tool choice, and best practices
-ccVersion: 2.1.47
+ccVersion: 2.1.51
 -->
 # Tool Use Concepts
 
@@ -58,6 +58,8 @@ Control when Claude uses tools:
 | \`{"type": "tool", "name": "..."}\` | Claude must use the specified tool            |
 | \`{"type": "none"}\`                | Claude cannot use tools                       |
 
+Any \`tool_choice\` value can also include \`"disable_parallel_tool_use": true\` to force Claude to use at most one tool per response. By default, Claude may request multiple tool calls in a single response.
+
 ---
 
 ### Tool Runner vs Manual Loop
@@ -65,6 +67,8 @@ Control when Claude uses tools:
 **Tool Runner (Recommended):** The SDK's tool runner handles the agentic loop automatically — it calls the API, detects tool use requests, executes your tool functions, feeds results back to Claude, and repeats until Claude stops calling tools. Available in Python and TypeScript SDKs (beta).
 
 **Manual Agentic Loop:** Use when you need fine-grained control over the loop (e.g., custom logging, conditional tool execution, human-in-the-loop approval). Loop until \`stop_reason == "end_turn"\`, always append the full \`response.content\` to preserve tool_use blocks, and ensure each \`tool_result\` includes the matching \`tool_use_id\`.
+
+**Stop reasons for server-side tools:** When using server-side tools (code execution, web search, etc.), the API runs a server-side sampling loop. If this loop reaches its default limit of 10 iterations, the response will have \`stop_reason: "pause_turn"\`. To continue, send the response back as-is and make another API request — the server will resume where it left off.
 
 > **Security:** The tool runner executes your tool functions automatically whenever Claude requests them. For tools with side effects (sending emails, modifying databases, financial transactions), validate inputs within your tool functions and consider requiring confirmation for destructive operations. Use the manual agentic loop if you need human-in-the-loop approval before each tool execution.
 
@@ -88,15 +92,13 @@ When Claude uses a tool, the response contains a \`tool_use\` block. You must:
 
 The code execution tool lets Claude run code in a secure, sandboxed container. Unlike user-defined tools, server-side tools run on Anthropic's infrastructure — you don't execute anything client-side. Just include the tool definition and Claude handles the rest.
 
-**Beta:** Pass \`betas=["code-execution-2025-08-25"]\` in your API calls (the SDK sets the required header automatically).
-
 ### Key Facts
 
 - Runs in an isolated container (1 CPU, 5 GiB RAM, 5 GiB disk)
 - No internet access (fully sandboxed)
 - Python 3.11 with data science libraries pre-installed
 - Containers persist for 30 days and can be reused across requests
-- 1,550 free hours/month per organization, then $0.05/hour
+- Free when used with web search/web fetch tools; otherwise $0.05/hour after 1,550 free hours/month per organization
 
 ### Tool Definition
 
@@ -104,7 +106,7 @@ The tool requires no schema — just declare it in the \`tools\` array:
 
 \`\`\`json
 {
-  "type": "code_execution_20250825",
+  "type": "code_execution_20260120",
   "name": "code_execution"
 }
 \`\`\`
@@ -146,6 +148,72 @@ The response contains interleaved text and tool result blocks:
 
 ---
 
+## Server-Side Tools: Web Search and Web Fetch
+
+Web search and web fetch let Claude search the web and retrieve page content. They run server-side — just include the tool definitions and Claude handles queries, fetching, and result processing automatically.
+
+### Tool Definitions
+
+\`\`\`json
+[
+  { "type": "web_search_20260209", "name": "web_search" },
+  { "type": "web_fetch_20260209", "name": "web_fetch" }
+]
+\`\`\`
+
+### Dynamic Filtering (Opus 4.6 / Sonnet 4.6)
+
+The \`web_search_20260209\` and \`web_fetch_20260209\` versions support **dynamic filtering** — Claude writes and executes code to filter search results before they reach the context window, improving accuracy and token efficiency. Dynamic filtering requires:
+
+1. The code execution tool (\`code_execution_20260120\`) must also be enabled in \`tools\`
+2. The beta header \`code-execution-web-tools-2026-02-09\`
+
+Header: \`anthropic-beta: code-execution-web-tools-2026-02-09\`
+
+\`\`\`json
+{
+  "tools": [
+    { "type": "web_search_20260209", "name": "web_search" },
+    { "type": "web_fetch_20260209", "name": "web_fetch" },
+    { "type": "code_execution_20260120", "name": "code_execution" }
+  ]
+}
+\`\`\`
+
+Without the beta header and code execution, these tools still work but without dynamic filtering. The previous \`web_search_20250305\` version is also available.
+
+---
+
+## Server-Side Tools: Programmatic Tool Calling
+
+Programmatic tool calling lets Claude execute complex multi-tool workflows in code, keeping intermediate results out of the context window. Claude writes code that calls your tools directly, reducing token usage for multi-step operations.
+
+For full documentation, use WebFetch:
+
+- URL: \`https://platform.claude.com/docs/en/agents-and-tools/tool-use/programmatic-tool-calling\`
+
+---
+
+## Server-Side Tools: Tool Search
+
+The tool search tool lets Claude dynamically discover tools from large libraries without loading all definitions into the context window. Useful when you have many tools but only a few are relevant to any given query.
+
+For full documentation, use WebFetch:
+
+- URL: \`https://platform.claude.com/docs/en/agents-and-tools/tool-use/tool-search-tool\`
+
+---
+
+## Tool Use Examples
+
+You can provide sample tool calls directly in your tool definitions to demonstrate usage patterns and reduce parameter errors. This helps Claude understand how to correctly format tool inputs, especially for tools with complex schemas.
+
+For full documentation, use WebFetch:
+
+- URL: \`https://platform.claude.com/docs/en/agents-and-tools/tool-use/implement-tool-use\`
+
+---
+
 ## Server-Side Tools: Computer Use
 
 Computer use lets Claude interact with a desktop environment (screenshots, mouse, keyboard). It can be Anthropic-hosted (server-side, like code execution) or self-hosted (you provide the environment and execute actions client-side).
@@ -159,8 +227,6 @@ For full documentation, use WebFetch:
 ## Client-Side Tools: Memory
 
 The memory tool enables Claude to store and retrieve information across conversations through a memory file directory. Claude can create, read, update, and delete files that persist between sessions.
-
-**Beta:** Use the SDK's beta namespace with \`betas: ["context-management-2025-06-27"]\`.
 
 ### Key Facts
 
@@ -188,7 +254,7 @@ Two features are available:
 
 **Supported models:** Claude Opus 4.6, Claude Sonnet 4.6, and Claude Haiku 4.5. Legacy models (Claude Opus 4.5, Claude Opus 4.1) also support structured outputs.
 
-> **Recommended:** Use \`client.messages.parse()\` which automatically validates responses against your schema. When using \`messages.create()\` directly, use \`output_config: {format: {...}}\`. The old \`output_format\` parameter is deprecated (SDK helpers like \`.parse()\` still accept it as a convenience).
+> **Recommended:** Use \`client.messages.parse()\` which automatically validates responses against your schema. When using \`messages.create()\` directly, use \`output_config: {format: {...}}\`. The \`output_format\` convenience parameter is also accepted by some SDK methods (e.g., \`.parse()\`), but \`output_config.format\` is the canonical API-level parameter.
 
 ### JSON Schema Limitations
 

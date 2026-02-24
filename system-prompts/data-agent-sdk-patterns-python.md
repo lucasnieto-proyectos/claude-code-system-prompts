@@ -1,15 +1,15 @@
 <!--
 name: 'Data: Agent SDK patterns — Python'
 description: Python Agent SDK patterns including custom tools, hooks, subagents, MCP integration, and session resumption
-ccVersion: 2.1.47
+ccVersion: 2.1.51
 -->
 # Agent SDK Patterns — Python
 
 ## Basic Agent
 
 \`\`\`python
-import asyncio
-from claude_agent_sdk import query, ClaudeAgentOptions
+import anyio
+from claude_agent_sdk import query, ClaudeAgentOptions, ResultMessage
 
 async def main():
     async for message in query(
@@ -19,40 +19,47 @@ async def main():
             allowed_tools=["Read", "Glob", "Grep"]
         )
     ):
-        if message.type == "result":
+        if isinstance(message, ResultMessage):
             print(message.result)
 
-asyncio.run(main())
+anyio.run(main)
 \`\`\`
 
 ---
 
 ## Custom Tools
 
+Custom tools require an MCP server. Use \`ClaudeSDKClient\` for full control, or pass the server to \`query()\` via \`mcp_servers\`.
+
 \`\`\`python
-from claude_agent_sdk import query, ClaudeAgentOptions, tool
+import anyio
+from claude_agent_sdk import (
+    tool,
+    create_sdk_mcp_server,
+    ClaudeSDKClient,
+    ClaudeAgentOptions,
+    AssistantMessage,
+    TextBlock,
+)
 
-@tool
-def get_weather(location: str) -> str:
-    """Get current weather for a location.
+@tool("get_weather", "Get the current weather for a location", {"location": str})
+async def get_weather(args):
+    location = args["location"]
+    return {"content": [{"type": "text", "text": f"The weather in {location} is sunny and 72°F."}]}
 
-    Args:
-        location: City name
-    """
-    return f"Weather in {location}: 72°F, sunny"
+server = create_sdk_mcp_server("weather-tools", tools=[get_weather])
 
 async def main():
-    async for message in query(
-        prompt="What's the weather in Paris?",
-        options=ClaudeAgentOptions(
-            allowed_tools=["Read"]
-            # Custom tools are automatically available via @tool decorator
-        )
-    ):
-        if message.type == "result":
-            print(message.result)
+    options = ClaudeAgentOptions(mcp_servers={"weather": server})
+    async with ClaudeSDKClient(options=options) as client:
+        await client.query("What's the weather in Paris?")
+        async for message in client.receive_response():
+            if isinstance(message, AssistantMessage):
+                for block in message.content:
+                    if isinstance(block, TextBlock):
+                        print(block.text)
 
-asyncio.run(main())
+anyio.run(main)
 \`\`\`
 
 ---
@@ -64,9 +71,9 @@ asyncio.run(main())
 Log file changes after any edit:
 
 \`\`\`python
-import asyncio
+import anyio
 from datetime import datetime
-from claude_agent_sdk import query, ClaudeAgentOptions, HookMatcher
+from claude_agent_sdk import query, ClaudeAgentOptions, HookMatcher, ResultMessage
 
 async def log_file_change(input_data, tool_use_id, context):
     file_path = input_data.get('tool_input', {}).get('file_path', 'unknown')
@@ -85,10 +92,10 @@ async def main():
             }
         )
     ):
-        if message.type == "result":
+        if isinstance(message, ResultMessage):
             print(message.result)
 
-asyncio.run(main())
+anyio.run(main)
 \`\`\`
 
 ---
@@ -96,8 +103,8 @@ asyncio.run(main())
 ## Subagents
 
 \`\`\`python
-import asyncio
-from claude_agent_sdk import query, ClaudeAgentOptions, AgentDefinition
+import anyio
+from claude_agent_sdk import query, ClaudeAgentOptions, AgentDefinition, ResultMessage
 
 async def main():
     async for message in query(
@@ -113,10 +120,10 @@ async def main():
             }
         )
     ):
-        if message.type == "result":
+        if isinstance(message, ResultMessage):
             print(message.result)
 
-asyncio.run(main())
+anyio.run(main)
 \`\`\`
 
 ---
@@ -126,8 +133,8 @@ asyncio.run(main())
 ### Browser Automation (Playwright)
 
 \`\`\`python
-import asyncio
-from claude_agent_sdk import query, ClaudeAgentOptions
+import anyio
+from claude_agent_sdk import query, ClaudeAgentOptions, ResultMessage
 
 async def main():
     async for message in query(
@@ -138,18 +145,18 @@ async def main():
             }
         )
     ):
-        if message.type == "result":
+        if isinstance(message, ResultMessage):
             print(message.result)
 
-asyncio.run(main())
+anyio.run(main)
 \`\`\`
 
 ### Database Access (PostgreSQL)
 
 \`\`\`python
 import os
-import asyncio
-from claude_agent_sdk import query, ClaudeAgentOptions
+import anyio
+from claude_agent_sdk import query, ClaudeAgentOptions, ResultMessage
 
 async def main():
     async for message in query(
@@ -164,10 +171,10 @@ async def main():
             }
         )
     ):
-        if message.type == "result":
+        if isinstance(message, ResultMessage):
             print(message.result)
 
-asyncio.run(main())
+anyio.run(main)
 \`\`\`
 
 ---
@@ -175,7 +182,7 @@ asyncio.run(main())
 ## Permission Modes
 
 \`\`\`python
-import asyncio
+import anyio
 from claude_agent_sdk import query, ClaudeAgentOptions
 
 async def main():
@@ -185,6 +192,16 @@ async def main():
         options=ClaudeAgentOptions(
             allowed_tools=["Bash"],
             permission_mode="default"  # Will prompt before deleting
+        )
+    ):
+        pass
+
+    # Plan: agent creates a plan before making changes
+    async for message in query(
+        prompt="Refactor the auth system",
+        options=ClaudeAgentOptions(
+            allowed_tools=["Read", "Edit"],
+            permission_mode="plan"
         )
     ):
         pass
@@ -204,12 +221,13 @@ async def main():
         prompt="Set up the development environment",
         options=ClaudeAgentOptions(
             allowed_tools=["Bash", "Write"],
-            permission_mode="bypassPermissions"
+            permission_mode="bypassPermissions",
+            allow_dangerously_skip_permissions=True
         )
     ):
         pass
 
-asyncio.run(main())
+anyio.run(main)
 \`\`\`
 
 ---
@@ -217,13 +235,14 @@ asyncio.run(main())
 ## Error Recovery
 
 \`\`\`python
-import asyncio
+import anyio
 from claude_agent_sdk import (
     query,
     ClaudeAgentOptions,
     CLINotFoundError,
     CLIConnectionError,
-    ProcessError
+    ProcessError,
+    ResultMessage,
 )
 
 async def run_with_recovery():
@@ -235,7 +254,7 @@ async def run_with_recovery():
                 max_turns=10
             )
         ):
-            if message.type == "result":
+            if isinstance(message, ResultMessage):
                 print(message.result)
     except CLINotFoundError:
         print("Claude Code CLI not found. Install with: pip install claude-agent-sdk")
@@ -244,7 +263,7 @@ async def run_with_recovery():
     except ProcessError as e:
         print(f"Process error: {e}")
 
-asyncio.run(run_with_recovery())
+anyio.run(run_with_recovery)
 \`\`\`
 
 ---
@@ -252,8 +271,8 @@ asyncio.run(run_with_recovery())
 ## Session Resumption
 
 \`\`\`python
-import asyncio
-from claude_agent_sdk import query, ClaudeAgentOptions
+import anyio
+from claude_agent_sdk import query, ClaudeAgentOptions, ResultMessage, SystemMessage
 
 async def main():
     session_id = None
@@ -263,7 +282,7 @@ async def main():
         prompt="Read the authentication module",
         options=ClaudeAgentOptions(allowed_tools=["Read", "Glob"])
     ):
-        if message.type == "system" and message.subtype == "init":
+        if isinstance(message, SystemMessage) and message.subtype == "init":
             session_id = message.session_id
 
     # Resume with full context from the first query
@@ -271,10 +290,10 @@ async def main():
         prompt="Now find all places that call it",  # "it" = auth module
         options=ClaudeAgentOptions(resume=session_id)
     ):
-        if message.type == "result":
+        if isinstance(message, ResultMessage):
             print(message.result)
 
-asyncio.run(main())
+anyio.run(main)
 \`\`\`
 
 ---
@@ -282,8 +301,8 @@ asyncio.run(main())
 ## Custom System Prompt
 
 \`\`\`python
-import asyncio
-from claude_agent_sdk import query, ClaudeAgentOptions
+import anyio
+from claude_agent_sdk import query, ClaudeAgentOptions, ResultMessage
 
 async def main():
     async for message in query(
@@ -298,8 +317,8 @@ async def main():
 Always provide specific line numbers and suggestions for improvement."""
         )
     ):
-        if message.type == "result":
+        if isinstance(message, ResultMessage):
             print(message.result)
 
-asyncio.run(main())
+anyio.run(main)
 \`\`\`

@@ -1,7 +1,7 @@
 <!--
 name: 'Data: Claude API reference — TypeScript'
 description: TypeScript SDK reference including installation, client initialization, basic requests, thinking, and multi-turn conversation
-ccVersion: 2.1.47
+ccVersion: 2.1.51
 -->
 # Claude API — TypeScript
 
@@ -112,7 +112,21 @@ const response = await client.messages.create({
     {
       type: "text",
       text: "You are an expert on this large document...",
-      cache_control: { type: "ephemeral" },
+      cache_control: { type: "ephemeral" }, // default TTL is 5 minutes
+    },
+  ],
+  messages: [{ role: "user", content: "Summarize the key points" }],
+});
+
+// With explicit TTL (time-to-live)
+const response2 = await client.messages.create({
+  model: "claude-opus-4-6",
+  max_tokens: 1024,
+  system: [
+    {
+      type: "text",
+      text: "You are an expert on this large document...",
+      cache_control: { type: "ephemeral", ttl: "1h" }, // 1 hour TTL
     },
   ],
   messages: [{ role: "user", content: "Summarize the key points" }],
@@ -123,7 +137,7 @@ const response = await client.messages.create({
 
 ## Extended Thinking
 
-> **Opus 4.6:** Use adaptive thinking. \`budget_tokens\` is deprecated on Opus 4.6.
+> **Opus 4.6 and Sonnet 4.6:** Use adaptive thinking. \`budget_tokens\` is deprecated on both Opus 4.6 and Sonnet 4.6.
 > **Older models:** Use \`thinking: {type: "enabled", budget_tokens: N}\` (must be < \`max_tokens\`, min 1024).
 
 \`\`\`typescript
@@ -132,7 +146,7 @@ const response = await client.messages.create({
   model: "claude-opus-4-6",
   max_tokens: 16000,
   thinking: { type: "adaptive" },
-  output_config: { effort: "high" }, // low | medium | high (default) | max
+  output_config: { effort: "high" }, // low | medium | high | max
   messages: [
     { role: "user", content: "Solve this math problem step by step..." },
   ],
@@ -234,6 +248,21 @@ console.log(await chat("Now add rate limiting and error handling"));
 
 ---
 
+## Stop Reasons
+
+The \`stop_reason\` field in the response indicates why the model stopped generating:
+
+| Value          | Meaning                                                        |
+| -------------- | -------------------------------------------------------------- |
+| \`end_turn\`     | Claude finished its response naturally                         |
+| \`max_tokens\`   | Hit the \`max_tokens\` limit — increase it or use streaming      |
+| \`stop_sequence\`| Hit a custom stop sequence                                     |
+| \`tool_use\`     | Claude wants to call a tool — execute it and continue          |
+| \`pause_turn\`   | Model paused and can be resumed (agentic flows)                |
+| \`refusal\`      | Claude refused for safety reasons — output may not match schema|
+
+---
+
 ## Cost Optimization Strategies
 
 ### 1. Use Prompt Caching for Repeated Context
@@ -243,7 +272,7 @@ const systemWithCache = [
   {
     type: "text",
     text: largeDocumentText, // e.g., 50KB of context
-    cache_control: { type: "ephemeral" },
+    cache_control: { type: "ephemeral" }, // add ttl: "1h" for longer caching
   },
 ];
 

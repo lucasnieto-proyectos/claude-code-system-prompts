@@ -1,7 +1,7 @@
 <!--
 name: 'Data: Claude API reference — Go'
 description: Go SDK reference including installation, client initialization, basic requests, streaming, and manual agentic loop
-ccVersion: 2.1.47
+ccVersion: 2.1.51
 -->
 # Claude API — Go
 
@@ -36,7 +36,7 @@ client := anthropic.NewClient(
 
 \`\`\`go
 response, err := client.Messages.New(context.TODO(), anthropic.MessageNewParams{
-    Model:     anthropic.ModelClaudeOpus4_5_20251101,
+    Model:     anthropic.ModelClaudeOpus4_6,
     MaxTokens: 1024,
     Messages: []anthropic.MessageParam{
         anthropic.NewUserMessage(anthropic.NewTextBlock("What is the capital of France?")),
@@ -54,7 +54,7 @@ fmt.Println(response.Content[0].Text)
 
 \`\`\`go
 stream := client.Messages.NewStreaming(context.TODO(), anthropic.MessageNewParams{
-    Model:     anthropic.ModelClaudeOpus4_5_20251101,
+    Model:     anthropic.ModelClaudeOpus4_6,
     MaxTokens: 1024,
     Messages: []anthropic.MessageParam{
         anthropic.NewUserMessage(anthropic.NewTextBlock("Write a haiku")),

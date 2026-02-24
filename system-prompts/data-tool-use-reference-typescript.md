@@ -1,7 +1,7 @@
 <!--
 name: 'Data: Tool use reference — TypeScript'
 description: TypeScript tool use reference including tool runner, manual agentic loop, code execution, and structured outputs
-ccVersion: 2.1.47
+ccVersion: 2.1.51
 -->
 # Tool Use — TypeScript
 
@@ -152,9 +152,8 @@ import Anthropic from "@anthropic-ai/sdk";
 
 const client = new Anthropic();
 
-const response = await client.beta.messages.create({
+const response = await client.messages.create({
   model: "claude-opus-4-6",
-  betas: ["code-execution-2025-08-25"],
   max_tokens: 4096,
   messages: [
     {
@@ -163,7 +162,7 @@ const response = await client.beta.messages.create({
         "Calculate the mean and standard deviation of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]",
     },
   ],
-  tools: [{ type: "code_execution_20250825", name: "code_execution" }],
+  tools: [{ type: "code_execution_20260120", name: "code_execution" }],
 });
 \`\`\`
 
@@ -184,24 +183,27 @@ const uploaded = await client.beta.files.upload({
 });
 
 // 2. Pass to code execution
-const response = await client.beta.messages.create({
-  model: "claude-opus-4-6",
-  betas: ["code-execution-2025-08-25", "files-api-2025-04-14"],
-  max_tokens: 4096,
-  messages: [
-    {
-      role: "user",
-      content: [
-        {
-          type: "text",
-          text: "Analyze this sales data. Show trends and create a visualization.",
-        },
-        { type: "container_upload", file_id: uploaded.id },
-      ],
-    },
-  ],
-  tools: [{ type: "code_execution_20250825", name: "code_execution" }],
-});
+// Code execution is GA; Files API is still beta (pass via RequestOptions)
+const response = await client.messages.create(
+  {
+    model: "claude-opus-4-6",
+    max_tokens: 4096,
+    messages: [
+      {
+        role: "user",
+        content: [
+          {
+            type: "text",
+            text: "Analyze this sales data. Show trends and create a visualization.",
+          },
+          { type: "container_upload", file_id: uploaded.id },
+        ],
+      },
+    ],
+    tools: [{ type: "code_execution_20260120", name: "code_execution" }],
+  },
+  { headers: { "anthropic-beta": "files-api-2025-04-14" } },
+);
 \`\`\`
 
 ### Retrieve Generated Files
@@ -243,9 +245,8 @@ for (const block of response.content) {
 
 \`\`\`typescript
 // First request: set up environment
-const response1 = await client.beta.messages.create({
+const response1 = await client.messages.create({
   model: "claude-opus-4-6",
-  betas: ["code-execution-2025-08-25"],
   max_tokens: 4096,
   messages: [
     {
@@ -253,16 +254,15 @@ const response1 = await client.beta.messages.create({
       content: "Install tabulate and create data.json with sample user data",
     },
   ],
-  tools: [{ type: "code_execution_20250825", name: "code_execution" }],
+  tools: [{ type: "code_execution_20260120", name: "code_execution" }],
 });
 
 // Reuse container
 const containerId = response1.container.id;
 
-const response2 = await client.beta.messages.create({
+const response2 = await client.messages.create({
   container: containerId,
   model: "claude-opus-4-6",
-  betas: ["code-execution-2025-08-25"],
   max_tokens: 4096,
   messages: [
     {
@@ -270,7 +270,7 @@ const response2 = await client.beta.messages.create({
       content: "Read data.json and display as a formatted table",
     },
   ],
-  tools: [{ type: "code_execution_20250825", name: "code_execution" }],
+  tools: [{ type: "code_execution_20260120", name: "code_execution" }],
 });
 \`\`\`
 
@@ -281,7 +281,7 @@ const response2 = await client.beta.messages.create({
 ### Basic Usage
 
 \`\`\`typescript
-const response = await client.beta.messages.create({
+const response = await client.messages.create({
   model: "claude-opus-4-6",
   max_tokens: 2048,
   messages: [
@@ -291,7 +291,6 @@ const response = await client.beta.messages.create({
     },
   ],
   tools: [{ type: "memory_20250818", name: "memory" }],
-  betas: ["context-management-2025-06-27"],
 });
 \`\`\`
 
@@ -321,7 +320,6 @@ const runner = client.beta.messages.toolRunner({
   max_tokens: 2048,
   tools: [memory],
   messages: [{ role: "user", content: "Remember my preferences" }],
-  betas: ["context-management-2025-06-27"],
 });
 
 for await (const message of runner) {
@@ -364,7 +362,9 @@ const response = await client.messages.parse({
         "Extract: Jane Doe (jane@co.com) wants Enterprise, interested in API and SDKs, wants a demo.",
     },
   ],
-  output_format: zodOutputFormat(ContactInfoSchema),
+  output_config: {
+    format: zodOutputFormat(ContactInfoSchema),
+  },
 });
 
 console.log(response.parsed_output.name); // "Jane Doe"

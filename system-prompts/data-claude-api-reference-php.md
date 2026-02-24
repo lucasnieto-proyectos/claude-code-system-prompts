@@ -1,16 +1,16 @@
 <!--
 name: 'Data: Claude API reference — PHP'
 description: PHP SDK reference including installation, client initialization, and basic message requests
-ccVersion: 2.1.47
+ccVersion: 2.1.51
 -->
 # Claude API — PHP
 
-> **Note:** The PHP SDK is the official Anthropic SDK for PHP (currently in beta). Tool runner and Agent SDK are not available.
+> **Note:** The PHP SDK is the official Anthropic SDK for PHP. Tool runner and Agent SDK are not available.
 
 ## Installation
 
 \`\`\`bash
-composer require "anthropic-ai/sdk 0.4.0"
+composer require "anthropic-ai/sdk 0.5.0"
 \`\`\`
 
 ## Client Initialization
@@ -27,13 +27,13 @@ $client = new Client(apiKey: getenv("ANTHROPIC_API_KEY"));
 ## Basic Message Request
 
 \`\`\`php
-$message = $client->messages->create([
-    'model' => 'claude-opus-4-6',
-    'max_tokens' => 1024,
-    'messages' => [
-        ['role' => 'user', 'content' => 'What is the capital of France?']
-    ]
-]);
+$message = $client->messages->create(
+    model: 'claude-opus-4-6',
+    maxTokens: 1024,
+    messages: [
+        ['role' => 'user', 'content' => 'What is the capital of France?'],
+    ],
+);
 echo $message->content[0]->text;
 \`\`\`
 
@@ -42,16 +42,16 @@ echo $message->content[0]->text;
 ## Streaming
 
 \`\`\`php
-$stream = $client->messages->createStream([
-    'model' => 'claude-opus-4-6',
-    'max_tokens' => 1024,
-    'messages' => [
-        ['role' => 'user', 'content' => 'Write a haiku']
-    ]
-]);
+$stream = $client->messages->createStream(
+    model: 'claude-opus-4-6',
+    maxTokens: 1024,
+    messages: [
+        ['role' => 'user', 'content' => 'Write a haiku'],
+    ],
+);
 
-foreach ($stream as $message) {
-    echo $message;
+foreach ($stream as $event) {
+    echo $event;
 }
 \`\`\`
 

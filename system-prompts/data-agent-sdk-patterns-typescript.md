@@ -1,7 +1,7 @@
 <!--
 name: 'Data: Agent SDK patterns — TypeScript'
 description: TypeScript Agent SDK patterns including basic agents, hooks, subagents, and MCP integration
-ccVersion: 2.1.47
+ccVersion: 2.1.51
 -->
 # Agent SDK Patterns — TypeScript
 
@@ -117,7 +117,7 @@ for await (const message of query({
   prompt: "Read the authentication module",
   options: { allowedTools: ["Read", "Glob"] },
 })) {
-  if ("subtype" in message && message.subtype === "init") {
+  if (message.type === "system" && message.subtype === "init") {
     sessionId = message.session_id;
   }
 }
