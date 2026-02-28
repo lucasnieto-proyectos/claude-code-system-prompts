@@ -61,6 +61,19 @@ The result&mdash;110+ strings that are constantly changing and moving within a v
 > - patches your npm-based or native (binary) Claude Code installation with them, and also
 > - provides diffing and conflict management for when both you and Anthropic have conflicting modifications to the same prompt file.
 
+## Plugins de Claude Cowork / Claude Code
+
+Este repositorio incluye además los **19 plugins oficiales** del [marketplace de Claude Cowork](https://github.com/lucasnieto-proyectos/PUBLICO-claude-cowork-plugins), ubicados en la carpeta [`plugins/`](./plugins/). Los plugins convierten a Claude en un especialista para diferentes roles profesionales (ventas, ingeniería, RRHH, diseño, legal, finanzas, etc.) utilizando archivos markdown y JSON.
+
+Cada plugin contiene:
+- **Skills**: conocimiento de dominio que Claude activa automáticamente
+- **Commands**: slash commands explícitos (ej: `/sales:call-prep`, `/finance:reconciliation`)
+- **Connectors**: conexiones MCP a herramientas externas (CRMs, Slack, Figma, etc.)
+
+📄 **Consulta el [análisis completo de plugins](./06-analisis-plugins.md)** para ver el catálogo, análisis de seguridad, patrones de diseño y relación con los system prompts.
+
+---
+
 ## Extraction
 
 This repository contains the system prompts extracted using a script from the latest npm version of Claude Code.  As they're extracted directly from Claude Code's compiled source code, they're guaranteed to be exactly what Claude Code uses.  If you use [tweakcc](https://github.com/Piebald-AI/tweakcc) to customize the system prompts, it works in a similar way&mdash;it patches the exact same strings in your local installation as are extracted into this repository.
